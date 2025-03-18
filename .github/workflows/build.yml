@@ -1,0 +1,61 @@
+name: Build GroundAnchorFix
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build #${{ github.run_number }} - ${{ github.event_name == 'pull_request' && 'PR' || github.ref_name }}
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1.1
+
+      - name: Validate required DLLs
+        run: |
+          $required = @(
+            "Dependencies/KSP/UnityEngine.dll",
+            "Dependencies/KSP/UnityEngine.CoreModule.dll",
+            "Dependencies/KSP/UnityEngine.UI.dll",
+            "Dependencies/KSP/Assembly-CSharp.dll"
+          )
+          foreach ($file in $required) {
+            if (-not (Test-Path $file)) {
+              Write-Error "Missing required dependency: $file"
+              exit 1
+            }
+          }
+
+      - name: Build GroundAnchorFix DLL
+        run: |
+          msbuild GroundAnchorFix.csproj /p:Configuration=Release
+
+      - name: Prepare mod package
+        run: |
+          mkdir dist\GameData\GroundAnchorFix\Plugins
+          copy .\bin\Release\GroundAnchorFix.dll dist\GameData\GroundAnchorFix\Plugins\
+          copy .\Source\GroundAnchorFix.cfg dist\GameData\GroundAnchorFix\
+          copy .\GroundAnchorFix.version dist\GameData\GroundAnchorFix\
+
+      - name: Create release zip
+        run: |
+          cd dist
+          Compress-Archive -Path GameData -DestinationPath GroundAnchorFix-${{ github.ref_name || github.run_number }}.zip
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: GroundAnchorFix-${{ github.ref_name || github.run_number }}
+          path: dist/GroundAnchorFix-*.zip

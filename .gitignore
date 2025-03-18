@@ -1,0 +1,17 @@
+# Ignore build artifacts
+bin/
+obj/
+
+# Ignore Rider/VSCode/Visual Studio settings
+.idea/
+.vscode/
+*.user
+*.suo
+*.csproj.user
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore PluginData contents
+# PluginData/anchors.json
