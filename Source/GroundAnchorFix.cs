@@ -12,7 +12,16 @@ public class GroundAnchorFix : PartModule
     public bool enableDebugLogs = false;
 
     private ModuleGroundPart groundPart;
-    private bool fixApplied = false;
+
+    [KSPEvent(guiActive = true, guiName = "[GroundAnchorFix] Apply Fix", active = true)]
+    public void ManualFixButton()
+    {
+        if (groundPart == null)
+            groundPart = part.FindModuleImplementing<ModuleGroundPart>();
+
+        if (groundPart != null)
+            FixAnchorToGround();
+    }
 
     public override void OnStart(StartState state)
     {
@@ -34,30 +43,12 @@ public class GroundAnchorFix : PartModule
         }
     }
 
-    public void Update()
-    {
-        if (!fixApplied && groundPart != null && groundPart.Events != null && groundPart.Events["DeployGroundAnchor"] != null && !groundPart.Events["DeployGroundAnchor"].active)
-        {
-            // Only apply fix when DeployGroundAnchor has already been called (event deactivated)
-            TryFix();
-            fixApplied = true;
-        }
-    }
-
     private void OnPartDie(Part p)
     {
         if (p == part)
         {
             GameEvents.onPartDie.Remove(OnPartDie);
         }
-    }
-
-    private void TryFix()
-    {
-        if (groundPart == null || !IsDeployed(part))
-            return;
-
-        FixAnchorToGround();
     }
 
     private void FixAnchorToGround()
@@ -90,10 +81,5 @@ public class GroundAnchorFix : PartModule
                 ScreenMessages.PostScreenMessage("[GroundAnchorFix] Anchor fixed at: " + part.transform.position, 5f, ScreenMessageStyle.UPPER_CENTER);
             }
         }
-    }
-
-    private bool IsDeployed(Part p)
-    {
-        return !p.packed && p.vessel != null && p.vessel.Landed;
     }
 }
