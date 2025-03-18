@@ -40,6 +40,7 @@ public class GroundAnchorFix : PartModule
             }
 
             GameEvents.onPartDie.Add(OnPartDie);
+            FixAnchorToGround(); // Fix automático ao carregar
         }
     }
 
@@ -54,32 +55,41 @@ public class GroundAnchorFix : PartModule
     private void FixAnchorToGround()
     {
         RaycastHit hit;
-        if (Physics.Raycast(part.transform.position, Vector3.down, out hit, 5f))
+        if (Physics.Raycast(part.transform.position, Vector3.down, out hit, 10f))
         {
-            Vector3 newPosition = part.transform.position;
-            newPosition.y = hit.point.y - parafusoDepth;
-
-            part.transform.position = newPosition;
-
-            Rigidbody rb = part.GetComponent<Rigidbody>();
-            if (rb != null)
+            if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Terrain"))
             {
-                rb.velocity = Vector3.zero;
-                rb.angularVelocity = Vector3.zero;
-                rb.isKinematic = true;
-            }
+                Vector3 newPosition = hit.point - Vector3.up * parafusoDepth;
+                part.transform.position = newPosition;
 
-            Collider col = part.GetComponent<Collider>();
-            if (col != null)
-            {
-                col.enabled = true;
-            }
+                Rigidbody rb = part.GetComponent<Rigidbody>();
+                if (rb != null)
+                {
+                    rb.velocity = Vector3.zero;
+                    rb.angularVelocity = Vector3.zero;
+                    rb.isKinematic = true;
+                }
 
-            Debug.Log("[GroundAnchorFix] Anchor fixed at position: " + part.transform.position);
-            if (enableDebugLogs)
-            {
-                ScreenMessages.PostScreenMessage("[GroundAnchorFix] Anchor fixed at: " + part.transform.position, 5f, ScreenMessageStyle.UPPER_CENTER);
+                Collider col = part.GetComponent<Collider>();
+                if (col != null)
+                {
+                    col.enabled = true;
+                }
+
+                Debug.Log("[GroundAnchorFix] Anchor fixed at position: " + part.transform.position);
+                if (enableDebugLogs)
+                {
+                    ScreenMessages.PostScreenMessage("[GroundAnchorFix] Anchor fixed at: " + part.transform.position, 5f, ScreenMessageStyle.UPPER_CENTER);
+                }
             }
+            else
+            {
+                Debug.Log("[GroundAnchorFix] Raycast hit non-terrain object: " + hit.collider.name);
+            }
+        }
+        else
+        {
+            Debug.Log("[GroundAnchorFix] Raycast did not hit anything within 10 units.");
         }
     }
 }

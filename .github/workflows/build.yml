@@ -29,7 +29,8 @@ jobs:
             "Dependencies/KSP/UnityEngine.dll",
             "Dependencies/KSP/UnityEngine.CoreModule.dll",
             "Dependencies/KSP/UnityEngine.UI.dll",
-            "Dependencies/KSP/Assembly-CSharp.dll"
+            "Dependencies/KSP/Assembly-CSharp.dll",
+            "Dependencies/KSP/UnityEngine.PhysicsModule.dll"
           )
           foreach ($file in $required) {
             if (-not (Test-Path $file)) {
