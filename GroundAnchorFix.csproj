@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <OutputPath>bin\</OutputPath>
+    <OutputPath>bin\\Release\\</OutputPath>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <AssemblyName>GroundAnchorFix</AssemblyName>
     <OutputType>Library</OutputType>
