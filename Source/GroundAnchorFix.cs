@@ -5,10 +5,14 @@ using KSP.IO;
 [KSPModule("GroundAnchorFix")]
 public class GroundAnchorFix : PartModule
 {
-    private const float anchorOffset = 0.15f;
+    [KSPField(isPersistant = false)]
+    public float anchorOffset = 0.15f; // configurable via .cfg
 
     [KSPField(isPersistant = false)]
     public bool enableDebugLogs = false;
+
+    private bool fixApplied = false;
+    private ModuleGroundPart groundPart;
 
     public override void OnStart(StartState state)
     {
@@ -16,10 +20,30 @@ public class GroundAnchorFix : PartModule
 
         if (state == StartState.Flying)
         {
-            if (enableDebugLogs)
-                Debug.Log("[GroundAnchorFix] OnStart detected - fixing anchor to ground.");
+            groundPart = part.FindModuleImplementing<ModuleGroundPart>();
+            if (groundPart == null)
+            {
+                Debug.Log("[GroundAnchorFix] Could not find ModuleGroundPart on this part.");
+                if (enableDebugLogs)
+                {
+                    ScreenMessages.PostScreenMessage("[GroundAnchorFix] GroundPart module not found!", 5f, ScreenMessageStyle.UPPER_CENTER);
+                }
+            }
+        }
+    }
 
+    public void Update()
+    {
+        if (!fixApplied && HighLogic.LoadedSceneIsFlight && groundPart != null && groundPart.IsDeployed)
+        {
             FixAnchorToGround();
+            fixApplied = true;
+
+            Debug.Log("[GroundAnchorFix] Anchor deployed detected - fix applied.");
+            if (enableDebugLogs)
+            {
+                ScreenMessages.PostScreenMessage("[GroundAnchorFix] Anchor deployed and fixed!", 5f, ScreenMessageStyle.UPPER_CENTER);
+            }
         }
     }
 
@@ -44,16 +68,21 @@ public class GroundAnchorFix : PartModule
                 col.enabled = true;
             }
 
+            Debug.Log("[GroundAnchorFix] Anchor fixed at position: " + part.transform.position);
+            Debug.Log("[GroundAnchorFix] Rigidbody isKinematic set to true.");
+
             if (enableDebugLogs)
             {
-                Debug.Log("[GroundAnchorFix] Anchor fixed at position: " + part.transform.position);
-                Debug.Log("[GroundAnchorFix] Rigidbody isKinematic set to true.");
+                ScreenMessages.PostScreenMessage("[GroundAnchorFix] Anchor fixed at: " + part.transform.position, 5f, ScreenMessageStyle.UPPER_CENTER);
             }
         }
         else
         {
+            Debug.Log("[GroundAnchorFix] Raycast did not hit terrain.");
             if (enableDebugLogs)
-                Debug.Log("[GroundAnchorFix] Raycast did not hit terrain.");
+            {
+                ScreenMessages.PostScreenMessage("[GroundAnchorFix] Raycast failed to hit terrain!", 5f, ScreenMessageStyle.UPPER_CENTER);
+            }
         }
     }
 }
