@@ -65,7 +65,7 @@ public class GroundAnchorFix : PartModule
 
     private void TryFix()
     {
-        if (groundPart == null || !groundPart.IsDeployed()) // Foundations também faz isso via método
+        if (groundPart == null || !IsDeployed(part))
             return;
 
         FixAnchorToGround();
@@ -102,12 +102,9 @@ public class GroundAnchorFix : PartModule
             }
         }
     }
-}
 
-public static class GroundPartExtensions
-{
-    public static bool IsDeployed(this ModuleGroundPart part)
+    private bool IsDeployed(Part p)
     {
-        return part.packed == false && part.vessel != null && part.vessel.Landed;
+        return !p.packed && p.vessel != null && p.vessel.Landed;
     }
 }
