@@ -29,6 +29,10 @@ public class GroundAnchorFix : PartModule
                     ScreenMessages.PostScreenMessage("[GroundAnchorFix] GroundPart module not found!", 5f, ScreenMessageStyle.UPPER_CENTER);
                 }
             }
+            else if (groundPart.deployed)
+            {
+                ApplyFix();
+            }
         }
     }
 
@@ -36,14 +40,19 @@ public class GroundAnchorFix : PartModule
     {
         if (!fixApplied && HighLogic.LoadedSceneIsFlight && groundPart != null && groundPart.deployed)
         {
-            FixAnchorToGround();
-            fixApplied = true;
+            ApplyFix();
+        }
+    }
 
-            Debug.Log("[GroundAnchorFix] Anchor deployed detected - fix applied.");
-            if (enableDebugLogs)
-            {
-                ScreenMessages.PostScreenMessage("[GroundAnchorFix] Anchor deployed and fixed!", 5f, ScreenMessageStyle.UPPER_CENTER);
-            }
+    private void ApplyFix()
+    {
+        FixAnchorToGround();
+        fixApplied = true;
+
+        Debug.Log("[GroundAnchorFix] Anchor fix applied.");
+        if (enableDebugLogs)
+        {
+            ScreenMessages.PostScreenMessage("[GroundAnchorFix] Anchor fix applied!", 5f, ScreenMessageStyle.UPPER_CENTER);
         }
     }
 
