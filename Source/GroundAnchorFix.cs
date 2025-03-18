@@ -11,7 +11,6 @@ public class GroundAnchorFix : PartModule
     [KSPField(isPersistant = false)]
     public bool enableDebugLogs = false;
 
-    private bool fixApplied = false;
     private ModuleGroundPart groundPart;
 
     public override void OnStart(StartState state)
@@ -21,43 +20,47 @@ public class GroundAnchorFix : PartModule
         if (state == StartState.Flying)
         {
             groundPart = part.FindModuleImplementing<ModuleGroundPart>();
+
             if (groundPart == null)
             {
                 Debug.Log("[GroundAnchorFix] Could not find ModuleGroundPart on this part.");
                 if (enableDebugLogs)
-                {
                     ScreenMessages.PostScreenMessage("[GroundAnchorFix] GroundPart module not found!", 5f, ScreenMessageStyle.UPPER_CENTER);
-                }
+                return;
             }
-            else if (groundPart.IsAnchored)
+
+            GameEvents.onPartCouple.Add(OnPartCouple);
+            GameEvents.onPartDie.Add(OnPartDie);
+
+            if (groundPart.deploymentState == ModuleGroundPart.DeploymentState.Deployed)
             {
-                ApplyFix();
+                FixAnchorToGround();
             }
         }
     }
 
-    public void Update()
+    private void OnPartCouple(GameEvents.FromToAction<Part, Part> data)
     {
-        if (!fixApplied && HighLogic.LoadedSceneIsFlight && groundPart != null && groundPart.IsAnchored)
+        if (data.from == part || data.to == part)
         {
-            ApplyFix();
+            FixAnchorToGround();
         }
     }
 
-    private void ApplyFix()
+    private void OnPartDie(Part p)
     {
-        FixAnchorToGround();
-        fixApplied = true;
-
-        Debug.Log("[GroundAnchorFix] Anchor fix applied.");
-        if (enableDebugLogs)
+        if (p == part)
         {
-            ScreenMessages.PostScreenMessage("[GroundAnchorFix] Anchor fix applied!", 5f, ScreenMessageStyle.UPPER_CENTER);
+            GameEvents.onPartCouple.Remove(OnPartCouple);
+            GameEvents.onPartDie.Remove(OnPartDie);
         }
     }
 
     private void FixAnchorToGround()
     {
+        if (groundPart.deploymentState != ModuleGroundPart.DeploymentState.Deployed)
+            return;
+
         RaycastHit hit;
         if (Physics.Raycast(part.transform.position, Vector3.down, out hit, 5f))
         {
@@ -81,19 +84,9 @@ public class GroundAnchorFix : PartModule
             }
 
             Debug.Log("[GroundAnchorFix] Anchor fixed at position: " + part.transform.position);
-            Debug.Log("[GroundAnchorFix] Rigidbody isKinematic set to true.");
-
             if (enableDebugLogs)
             {
                 ScreenMessages.PostScreenMessage("[GroundAnchorFix] Anchor fixed at: " + part.transform.position, 5f, ScreenMessageStyle.UPPER_CENTER);
-            }
-        }
-        else
-        {
-            Debug.Log("[GroundAnchorFix] Raycast did not hit terrain.");
-            if (enableDebugLogs)
-            {
-                ScreenMessages.PostScreenMessage("[GroundAnchorFix] Raycast failed to hit terrain!", 5f, ScreenMessageStyle.UPPER_CENTER);
             }
         }
     }
