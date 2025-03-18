@@ -29,7 +29,7 @@ public class GroundAnchorFix : PartModule
                     ScreenMessages.PostScreenMessage("[GroundAnchorFix] GroundPart module not found!", 5f, ScreenMessageStyle.UPPER_CENTER);
                 }
             }
-            else if (groundPart.deployed)
+            else if (groundPart.IsAnchored)
             {
                 ApplyFix();
             }
@@ -38,7 +38,7 @@ public class GroundAnchorFix : PartModule
 
     public void Update()
     {
-        if (!fixApplied && HighLogic.LoadedSceneIsFlight && groundPart != null && groundPart.deployed)
+        if (!fixApplied && HighLogic.LoadedSceneIsFlight && groundPart != null && groundPart.IsAnchored)
         {
             ApplyFix();
         }
