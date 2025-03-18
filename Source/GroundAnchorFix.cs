@@ -6,7 +6,7 @@ using KSP.IO;
 public class GroundAnchorFix : PartModule
 {
     [KSPField(isPersistant = false)]
-    public float anchorOffset = 0.15f; // configurable via .cfg
+    public float parafusoDepth = 0.12f; // Depth of the screws after animation (visual compensation)
 
     [KSPField(isPersistant = false)]
     public bool enableDebugLogs = false;
@@ -61,7 +61,10 @@ public class GroundAnchorFix : PartModule
         RaycastHit hit;
         if (Physics.Raycast(part.transform.position, Vector3.down, out hit, 5f))
         {
-            part.transform.position = hit.point - Vector3.up * anchorOffset;
+            Vector3 newPosition = part.transform.position;
+            newPosition.y = hit.point.y - parafusoDepth;
+
+            part.transform.position = newPosition;
 
             Rigidbody rb = part.GetComponent<Rigidbody>();
             if (rb != null)
