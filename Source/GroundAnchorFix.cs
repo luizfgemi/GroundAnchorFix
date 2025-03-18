@@ -12,6 +12,7 @@ public class GroundAnchorFix : PartModule
     public bool enableDebugLogs = false;
 
     private ModuleGroundPart groundPart;
+    private bool fixApplied = false;
 
     public override void OnStart(StartState state)
     {
@@ -29,36 +30,17 @@ public class GroundAnchorFix : PartModule
                 return;
             }
 
-            GameEvents.onVesselWasModified.Add(OnVesselModified);
-            GameEvents.onPartAttach.Add(OnPartAttach);
             GameEvents.onPartDie.Add(OnPartDie);
-            GameEvents.onPartUndock.Add(OnPartUndock);
-
-            TryFix();
         }
     }
 
-    private void OnVesselModified(Vessel v)
+    public void Update()
     {
-        if (v.parts.Contains(part))
+        if (!fixApplied && groundPart != null && groundPart.Events != null && groundPart.Events["DeployGroundAnchor"] != null && !groundPart.Events["DeployGroundAnchor"].active)
         {
+            // Only apply fix when DeployGroundAnchor has already been called (event deactivated)
             TryFix();
-        }
-    }
-
-    private void OnPartAttach(GameEvents.HostTargetAction<Part, Part> data)
-    {
-        if (data.host == part || data.target == part)
-        {
-            TryFix();
-        }
-    }
-
-    private void OnPartUndock(Part p)
-    {
-        if (p == part)
-        {
-            TryFix();
+            fixApplied = true;
         }
     }
 
@@ -66,10 +48,7 @@ public class GroundAnchorFix : PartModule
     {
         if (p == part)
         {
-            GameEvents.onVesselWasModified.Remove(OnVesselModified);
-            GameEvents.onPartAttach.Remove(OnPartAttach);
             GameEvents.onPartDie.Remove(OnPartDie);
-            GameEvents.onPartUndock.Remove(OnPartUndock);
         }
     }
 
