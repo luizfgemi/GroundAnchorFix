@@ -13,7 +13,7 @@ public class GroundAnchorFix : PartModule
 
     private ModuleGroundPart groundPart;
 
-    [KSPEvent(guiActive = true, guiName = "[GroundAnchorFix] Apply Fix", active = true)]
+    [KSPEvent(guiActive = true, guiActiveUnfocused = true, guiActiveEditor = false, guiName = "[GroundAnchorFix] Apply Fix", active = true)]
     public void ManualFixButton()
     {
         if (groundPart == null)
