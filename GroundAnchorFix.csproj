@@ -22,6 +22,9 @@
     <Reference Include="Assembly-CSharp">
       <HintPath>Dependencies/KSP/Assembly-CSharp.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>Dependencies\KSP\UnityEngine.PhysicsModule.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
