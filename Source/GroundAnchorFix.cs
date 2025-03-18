@@ -30,6 +30,7 @@ public class GroundAnchorFix : PartModule
             }
 
             GameEvents.onVesselWasModified.Add(OnVesselModified);
+            GameEvents.onPartAttach.Add(OnPartAttach);
             GameEvents.onPartDie.Add(OnPartDie);
             GameEvents.onPartUndock.Add(OnPartUndock);
 
@@ -40,6 +41,14 @@ public class GroundAnchorFix : PartModule
     private void OnVesselModified(Vessel v)
     {
         if (v.parts.Contains(part))
+        {
+            TryFix();
+        }
+    }
+
+    private void OnPartAttach(GameEvents.HostTargetAction<Part, Part> data)
+    {
+        if (data.host == part || data.target == part)
         {
             TryFix();
         }
@@ -58,6 +67,7 @@ public class GroundAnchorFix : PartModule
         if (p == part)
         {
             GameEvents.onVesselWasModified.Remove(OnVesselModified);
+            GameEvents.onPartAttach.Remove(OnPartAttach);
             GameEvents.onPartDie.Remove(OnPartDie);
             GameEvents.onPartUndock.Remove(OnPartUndock);
         }
