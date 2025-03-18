@@ -34,7 +34,7 @@ public class GroundAnchorFix : PartModule
 
     public void Update()
     {
-        if (!fixApplied && HighLogic.LoadedSceneIsFlight && groundPart != null && groundPart.IsDeployed)
+        if (!fixApplied && HighLogic.LoadedSceneIsFlight && groundPart != null && groundPart.deployed)
         {
             FixAnchorToGround();
             fixApplied = true;
